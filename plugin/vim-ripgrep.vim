@@ -93,11 +93,7 @@ fun! s:RgGrepContext(search, txt)
     let &shellpipe="&>"
   endif
 
-  if exists('g:rg_derive_root')
-    call s:RgPathContext(a:search, a:txt)
-  else
-    call a:search(a:txt)
-  endif
+  call s:RgPathContext(a:search, a:txt)
 
   let &shellpipe=l:shellpipe_bak
   let &t_te=l:te
@@ -107,8 +103,8 @@ fun! s:RgGrepContext(search, txt)
 endfun
 
 fun! s:RgPathContext(search, txt)
-  let l:cwdb = getcwd()
-  exe 'lcd '.s:RgRootDir()
+  let l:cwdb = expand('%:p:h')
+  exe 'lcd '.g:RgRootDir()
   call a:search(a:txt)
   exe 'lcd '.l:cwdb
 endfun
@@ -117,9 +113,9 @@ fun! s:RgHighlight(txt)
   call matchadd(g:rg_highlight_type, a:txt)
 endfun
 
-fun! s:RgRootDir()
-  let l:cwd = getcwd()
-  let l:dirs = split(getcwd(), '/')
+fun! g:RgRootDir()
+  let l:cwd = expand('%:p:h')
+  let l:dirs = split(expand('%:p:h'), '/')
 
   for l:dir in reverse(copy(l:dirs))
     for l:type in g:rg_root_types
@@ -140,13 +136,9 @@ fun! s:RgHasFile(path)
   return filereadable(a:path) || isdirectory(a:path)
 endfun
 
-fun! s:RgShowRoot()
-  if exists('g:rg_derive_root')
-    echo s:RgRootDir()
-  else
-    echo getcwd()
-  endif
+fun! g:RgShowRoot()
+  echo g:RgRootDir()
 endfun
 
 command! -nargs=* -complete=file Rg :call s:Rg(<q-args>)
-command! -complete=file RgRoot :call s:RgShowRoot()
+command! -complete=file RgRoot :call g:RgShowRoot()
