@@ -114,18 +114,10 @@ fun! s:RgHighlight(txt)
 endfun
 
 fun! g:RgRootDir()
-  let l:cwd = expand('%:p:h')
-  let l:dirs = split(expand('%:p:h'), '/')
-
-  for l:dir in reverse(copy(l:dirs))
-    for l:type in g:rg_root_types
-      let l:path = s:RgMakePath(l:dirs, l:dir)
-      if s:RgHasFile(l:path.'/'.l:type)
-        return l:path
-      endif
-    endfor
-  endfor
-  return l:cwd
+  let l:bwd = expand('%:p:h')
+  let l:bufroot = system('cd '. l:bwd . ' && git rev-parse --show-toplevel')
+  let l:bufroot = substitute(l:bufroot, '\n', '', 'g')
+  return l:bufroot
 endfun
 
 fun! s:RgMakePath(dirs, dir)
